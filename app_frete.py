@@ -30,13 +30,14 @@ def load_produtos():
         "https://spreadsheets.google.com/feeds",
         "https://www.googleapis.com/auth/drive",
     ]
-    if "gcp_service_account" in st.secrets:
+    try:
         creds = Credentials.from_service_account_info(dict(st.secrets["gcp_service_account"]), scopes=scope)
-    else:
+    except (KeyError, FileNotFoundError):
         creds = Credentials.from_service_account_file("credentials.json", scopes=scope)
     client = gspread.authorize(creds)
     worksheet = client.open_by_key(SPREADSHEET_ID).worksheet(SHEET_NAME)
-    df = pd.DataFrame(worksheet.get_all_records())
+    dados = worksheet.get_all_values()
+    df = pd.DataFrame(dados[1:], columns=dados[0])
     for col in ["PRODUTO_ID", "PESO", "COMPRIMENTO_UNIDADE", "LARGURA_UNIDADE",
                 "ALTURA_UNIDADE", "PRECO_VENDA"]:
         df[col] = (
