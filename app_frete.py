@@ -40,7 +40,9 @@ def load_produtos():
     for col in ["PRODUTO_ID", "PESO", "COMPRIMENTO_UNIDADE", "LARGURA_UNIDADE",
                 "ALTURA_UNIDADE", "PRECO_VENDA"]:
         df[col] = (
-            df[col].astype(str).str.replace(r"\.", "", regex=True).str.replace(",", ".", regex=False)
+            df[col].astype(str)
+            .str.replace(r"\.(?=\d{3})", "", regex=True)  # remove ponto separador de milhar
+            .str.replace(",", ".", regex=False)             # troca vírgula decimal por ponto
         )
         df[col] = pd.to_numeric(df[col], errors="coerce")
     df["VOLUME"] = (
