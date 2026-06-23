@@ -141,6 +141,7 @@ if ajuste_tipo == "Importar XLSX":
                 val = val.replace(",", ".")
                 return float(val)
             df_xlsx["PRECO_VENDA"] = df_xlsx["PRECO_VENDA"].apply(normalizar_preco)
+            df_xlsx = df_xlsx.drop_duplicates(subset="PRODUTO_ID", keep="last")
             xlsx_precos = df_xlsx.set_index("PRODUTO_ID")["PRECO_VENDA"]
             st.sidebar.success(f"{len(df_xlsx)} produtos carregados do XLSX.")
         except Exception as e:
@@ -172,7 +173,13 @@ if ajuste_tipo == "Percentual (%)":
 elif ajuste_tipo == "Definir preço fixo (R$)":
     df["PRECO_VENDA"] = ajuste_valor
 elif ajuste_tipo == "Importar XLSX" and xlsx_precos is not None:
-    df["PRECO_VENDA"] = df["PRODUTO_ID"].map(xlsx_precos).fillna(df["PRECO_VENDA"])
+    df = df.merge(
+        xlsx_precos.rename("PRECO_NOVO").reset_index(),
+        on="PRODUTO_ID",
+        how="left",
+    )
+    df["PRECO_VENDA"] = df["PRECO_NOVO"].fillna(df["PRECO_VENDA"])
+    df = df.drop(columns=["PRECO_NOVO"])
 
 df["PRECO_VENDA"] = df["PRECO_VENDA"].clip(lower=0)
 
