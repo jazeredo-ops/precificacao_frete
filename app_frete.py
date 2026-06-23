@@ -132,7 +132,7 @@ if ajuste_tipo == "Importar XLSX":
     )
     if uploaded:
         try:
-            df_xlsx = pd.read_excel(uploaded, dtype={"PRODUTO_ID": int, "PRECO_VENDA": str})
+            df_xlsx = pd.read_excel(uploaded, dtype={"PRODUTO_ID": int, "PRECO_VENDA": str}, engine="openpyxl")
             def normalizar_preco(val):
                 val = str(val).strip()
                 # remove separador de milhar (ponto ou vírgula seguido de 3 dígitos)
